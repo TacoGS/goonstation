@@ -95,6 +95,10 @@
 	Move(NewLoc, direct)//Ewww!
 		last_loc = src.loc
 
+		src.closeContextActions()
+		// contextbuttons can also exist on our mainframe and the eye shares the same hud, fun stuff.
+		src.mainframe.closeContextActions()
+
 		if (src.mainframe)
 			src.mainframe.tracker.cease_track()
 
@@ -102,11 +106,11 @@
 			src.cancel_camera()
 
 		if (NewLoc)
-			dir = get_dir(loc, NewLoc)
+			src.set_dir(get_dir(loc, NewLoc))
 			src.set_loc(NewLoc) //src.set_loc(NewLoc) we don't wanna refresh last_range here and as fas as i can tell there's no reason we Need set_loc
 		else
 
-			dir = direct
+			src.set_dir(direct)
 			if((direct & NORTH) && src.y < world.maxy)
 				src.y++
 			if((direct & SOUTH) && src.y > 1)
@@ -143,7 +147,7 @@
 		//var/inrange = in_range(target, src)
 		//var/obj/item/equipped = src.equipped()
 
-		if (!src.client.check_any_key(KEY_EXAMINE | KEY_OPEN | KEY_BOLT | KEY_SHOCK) ) // ugh
+		if (!src.client.check_any_key(KEY_EXAMINE | KEY_OPEN | KEY_BOLT | KEY_SHOCK | KEY_POINT) ) // ugh
 			//only allow Click-to-track on mobs. Some of the 'trackable' atoms are also machines that can open a dialog and we don't wanna mess with that!
 			if (src.mainframe && ismob(target) && is_mob_trackable_by_AI(target))
 				mainframe.ai_actual_track(target)
@@ -156,10 +160,15 @@
 				set_loc(src, target)
 
 			if (get_dist(src, target) > 0)
-				dir = get_dir(src, target)
+				src.set_dir(get_dir(src, target))
 
 
 			target.attack_ai(src, params, location, control)
+
+		if (src.client.check_any_key(KEY_POINT))
+			var/turf/T = get_turf(target)
+			mainframe.show_hologram_context(T)
+			return
 
 		if (src.client.check_any_key(KEY_EXAMINE))
 			. = ..()
@@ -169,11 +178,14 @@
 			if (src.client.check_key(KEY_OPEN))
 				src.set_cursor('icons/cursors/open.dmi')
 				return
-			if (src.client.check_key(KEY_BOLT))
+			else if (src.client.check_key(KEY_BOLT))
 				src.set_cursor('icons/cursors/bolt.dmi')
 				return
-			if(src.client.check_key(KEY_SHOCK))
+			else if(src.client.check_key(KEY_SHOCK))
 				src.set_cursor('icons/cursors/shock.dmi')
+				return
+			else if(src.client.check_key(KEY_POINT))
+				src.set_cursor('icons/cursors/point.dmi')
 				return
 		return ..()
 
@@ -387,8 +399,7 @@
 		set name = "Cancel Camera View"
 
 		..()
-		if(mainframe)
-			mainframe.cancel_camera()
+		mainframe?.cancel_camera()
 		SPAWN_DBG(1 DECI SECOND)
 			src.return_mainframe()
 
@@ -594,7 +605,6 @@ world/proc/updateCameraVisibility()
 		ma.appearance_flags = TILE_BOUND | KEEP_APART | RESET_TRANSFORM | RESET_ALPHA | RESET_COLOR
 		ma.name = " "
 
-
 		// takes about one second compared to the ~12++ that the actual calculations take
 		game_start_countdown?.update_status("Updating cameras...\n(Calculating...)")
 		var/list/turf/cam_candidates = list()
@@ -602,7 +612,8 @@ world/proc/updateCameraVisibility()
 			if( t.z != 1 ) continue
 			cam_candidates += t
 
-#ifdef !MAP_OVERRIDE_POD_WARS
+#ifndef MAP_OVERRIDE_POD_WARS
+
 		var/lastpct = 0
 		var/thispct = 0
 		var/donecount = 0
