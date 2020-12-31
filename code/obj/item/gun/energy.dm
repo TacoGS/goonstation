@@ -356,7 +356,7 @@
 	desc = "Its a gun that has two modes, stun and kill"
 	item_state = "egun"
 	force = 5.0
-	mats = 50
+	mats = list("MET-1"=15, "CON-1"=5, "POW-1"=5)
 	module_research = list("weapons" = 5, "energy" = 4, "miniaturization" = 5)
 	var/nojobreward = 0 //used to stop people from scanning it and then getting both a lawbringer/sabre AND an egun.
 	muzzle_flash = "muzzle_flash_elec"
@@ -768,6 +768,20 @@
 	var/image/indicator_display = null
 	var/display_color =	"#00FF00"
 	var/initial_proj = /datum/projectile/laser/blaster
+	var/team_num = 0	//1 is NT, 2 is Syndicate
+
+	shoot(var/target,var/start,var/mob/user)
+		if (canshoot())
+			if (team_num)
+				if (team_num == 1 && user?.mind?.special_role == "Nanotrasen")
+					return ..(target, start, user)
+				else if (team_num == 2 && user?.mind?.special_role == "Syndicate")
+					return ..(target, start, user)
+				else
+					boutput(user, "<span class='alert'>You don't have to right DNA to fire this weapon! E-gad!</span><br>")
+					return
+			else
+				return ..(target, start, user)
 
 	disposing()
 		indicator_display = null
@@ -783,6 +797,7 @@
 		current_projectile = new initial_proj
 		projectiles = list(current_projectile)
 		src.indicator_display = image('icons/obj/items/gun.dmi', "")
+
 		..()
 
 	update_icon()
@@ -803,12 +818,13 @@
 		muzzle_flash = "muzzle_flash_plaser"
 		display_color =	"#0a4882"
 		initial_proj = /datum/projectile/laser/blaster/pod_pilot/blue_NT
+		team_num = 1
 
 	syndicate
 		muzzle_flash = "muzzle_flash_laser"
 		display_color =	"#ff4043"
 		initial_proj = /datum/projectile/laser/blaster/pod_pilot/red_SY
-
+		team_num = 2
 
 ///////////////////////////////////////Modular Blasters
 /obj/item/gun/energy/blaster_pistol
@@ -1293,7 +1309,7 @@
 	var/old = 0
 	m_amt = 5000
 	g_amt = 2000
-	mats = 16
+	mats = list("MET-1"=15, "CON-2"=5, "POW-2"=5)
 	var/owner_prints = null
 	var/image/indicator_display = null
 	rechargeable = 0
@@ -1615,3 +1631,73 @@
 		cell = new/obj/item/ammo/power_cell/self_charging/howitzer
 		current_projectile = new/datum/projectile/special/howitzer
 		projectiles = list(new/datum/projectile/special/howitzer )
+
+/obj/item/gun/energy/signifer2
+	name = "Signifer II"
+	desc = "It's a handgun? Or an smg? You can't tell."
+	icon_state = "signifer2"
+	force = 8
+	two_handed = 0
+	cell_type = /obj/item/ammo/power_cell/self_charging/ntso_signifer
+	can_swap_cell = 0
+	var/shotcount = 0
+
+
+	New()
+		current_projectile = new/datum/projectile/energy_bolt/signifer_tase
+		projectiles = list(current_projectile,new/datum/projectile/laser/signifer_lethal)
+		..()
+
+	update_icon()
+		..()
+		if(cell)
+			var/ratio = min(1, src.cell.charge / src.cell.max_charge)
+			ratio = round(ratio, 0.25) * 100
+			if(!src.two_handed)// && current_projectile.type == /datum/projectile/energy_bolt)
+				src.icon_state = "signifer_2"
+				src.item_state = "signifer_2"
+				muzzle_flash = "muzzle_flash_elec"
+				shoot_delay = 2
+				spread_angle = 0
+				force = 9
+			else //if (current_projectile.type == /datum/projectile/laser)
+				src.item_state = "signifer_2-smg"
+				src.icon_state = "signifer_2-smg"
+				muzzle_flash = "muzzle_flash_bluezap"
+				force = 12
+				spread_angle = 3
+				shoot_delay = 5
+
+	attack_self(var/mob/M)
+		if (!src.two_handed)
+
+			if(M.l_hand == src)
+				if(M.r_hand != null)
+					boutput(M, "<span class='alert'>You need a free hand to switch modes!</span>")
+					src.two_handed = 0
+					return 0
+			else if(M.r_hand == src)
+				if(M.l_hand != null)
+					boutput(M, "<span class='alert'>You need a free hand to switch modes!</span>")
+					src.two_handed = 0
+					return 0
+		..()
+
+		setTwoHanded(!src.two_handed)
+		src.can_dual_wield = !src.two_handed
+		update_icon()
+
+		M.update_inhands()
+
+	alter_projectile(obj/projectile/P)
+		. = ..()
+		if(++shotcount == 2 && istype(P.proj_data, /datum/projectile/laser/signifer_lethal/))
+			P.proj_data = new/datum/projectile/laser/signifer_lethal/brute
+
+	shoot()
+		shotcount = 0
+		. = ..()
+
+	shoot_point_blank(mob/M, mob/user, second_shot)
+		shotcount = 0
+		. = ..()

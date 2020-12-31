@@ -55,16 +55,33 @@
 		shuffle_list(readied_minds)
 		if (length < 2)
 			if (prob(100))	//change to 50 - KYLE
-				team_NT.accept_players(readied_minds)
+				team_NT.accept_initial_players(readied_minds)
 			else
-				team_SY.accept_players(readied_minds)
+				team_SY.accept_initial_players(readied_minds)
 
 		else
 			var/half = round(length/2)
-			team_NT.accept_players(readied_minds.Copy(1, half+1))
-			team_SY.accept_players(readied_minds.Copy(half+1, 0))
+			team_NT.accept_initial_players(readied_minds.Copy(1, half+1))
+			team_SY.accept_initial_players(readied_minds.Copy(half+1, 0))
 
 	return 1
+
+/datum/game_mode/pod_wars/proc/add_latejoin_to_team(var/datum/mind/mind, var/datum/job/JOB)
+	if (istype(JOB, /datum/job/pod_wars/nanotrasen))
+		team_NT.members += mind
+		team_NT.equip_player(mind.current)
+	else if (istype(JOB, /datum/job/pod_wars/syndicate))
+		team_SY.members += mind
+		team_SY.equip_player(mind.current)
+
+	for(var/turf/T in landmarks[LANDMARK_LATEJOIN])
+		if (istype(T.loc, /area/podmode/team1))
+			mind.current.set_loc(T)
+			return
+		else if (istype(T.loc, /area/podmode/team2))
+			mind.current.set_loc(T)
+			return
+
 
 /datum/game_mode/pod_wars/post_setup()
 	SPAWN_DBG(-1)
@@ -85,20 +102,122 @@
 
 /datum/game_mode/pod_wars/proc/setup_asteroid_ores()
 
-	var/list/types = list("mauxite", "pharosium", "molitz", "char", "ice", "cobryl", "bohrum", "claretine", "viscerite", "koshmarite", "syreline", "gold", "plasmastone", "cerenkite", "miraclium", "nanite cluster", "erebite", "starstone")
-	var/list/weights = list(100, 100, 100, 125, 55, 55, 25, 25, 55, 40, 20, 20, 15, 20, 10, 1, 5, 2)
+//	var/list/types = list("mauxite", "pharosium", "molitz", "char", "ice", "cobryl", "bohrum", "claretine", "viscerite", "koshmarite", "syreline", "gold", "plasmastone", "cerenkite", "miraclium", "nanite cluster", "erebite", "starstone")
+//	var/list/weights = list(100, 100, 100, 125, 55, 55, 25, 25, 55, 40, 20, 20, 15, 20, 10, 1, 5, 2)
 
-	for(var/turf/T in world)
-		if (T.z != 1 || !istype(T, /turf/simulated/wall/asteroid/pod_wars)) continue
+	var/datum/ore_cluster/minor/minor_ores = new /datum/ore_cluster/minor
+	for(var/area/podmode/asteroid/minor/A in world)
+		if(!istype(A, /area/podmode/asteroid/minor/nospawn))
+			for(var/turf/simulated/wall/asteroid/pod_wars/AST in A)
+				//Do the ore_picking
+				AST.randomize_ore(minor_ores)
 
-		//half chance for nothing in an asteroid, just skip.
-		if (prob(50)) continue
+	var/list/datum/ore_cluster/oreClusts = list()
+	for(var/OC in concrete_typesof(/datum/ore_cluster))
+		oreClusts += new OC
 
-		var/turf/simulated/wall/asteroid/pod_wars/AST = T
-		//Do the ore_picking
-		AST.randomize_ore(weightedprob(types, weights))
-
+	for(var/area/podmode/asteroid/major/A in world)
+		var/datum/ore_cluster/OC = pick(oreClusts)
+		OC.quantity -= 1
+		if(OC.quantity <= 0) oreClusts -= OC
+		//oreClusts -= OC
+		for(var/turf/simulated/wall/asteroid/pod_wars/AST in A)
+			if(prob(OC.fillerprob))
+				AST.randomize_ore(minor_ores)
+			else
+				AST.randomize_ore(OC)
+			AST.hardness += OC.hardness_mod
 	return 1
+
+//////////////////
+///////////////pod_wars asteroids
+/turf/simulated/wall/asteroid/pod_wars
+	fullbright = 1
+	name = "asteroid"
+	desc = "It's asteroid material."
+	hardness = 1
+	default_ore = /obj/item/raw_material/rock
+
+	// varied layers
+
+	New()
+		..()
+
+	//Don't think this can go in new.
+	proc/randomize_ore(var/datum/ore_cluster/OC)
+		if(!prob(OC.density)) return
+
+		var/ore_name
+		ore_name = weighted_pick(OC.ore_types + (((length(OC.hiddenores) && !(locate(/turf/space) in range(1, src)))) ? OC.hiddenores : list()))
+
+		//stolen from Turfspawn_Asteroid_SeedSpecificOre
+		var/datum/ore/O = mining_controls?.get_ore_from_string(ore_name)
+		src.ore = O
+		src.hardness += O.hardness_mod
+		src.amount = rand(O.amount_per_tile_min,O.amount_per_tile_max)
+		var/image/ore_overlay = image('icons/turf/asteroid.dmi',O.name)
+		ore_overlay.transform = turn(ore_overlay.transform, pick(0,90,180,-90))
+		ore_overlay.pixel_x += rand(-6,6)
+		ore_overlay.pixel_y += rand(-6,6)
+		src.overlays += ore_overlay
+
+		if(prob(OC.gem_prob))
+			add_event(/datum/ore/event/gem, O)
+
+	proc/add_event(var/list/datum/ore/event/new_event, var/datum/ore/O)
+		var/datum/ore/event/E = new new_event
+		E.set_up(O)
+		src.set_event(E)
+
+ABSTRACT_TYPE(/datum/ore_cluster)
+/datum/ore_cluster
+	var/list/ore_types
+	var/density = 40
+	var/hardness_mod = 0
+	var/list/hiddenores
+	var/quantity = 1
+	var/fillerprob = 0
+	var/gem_prob = 0
+
+	minor
+		ore_types = list("mauxite" = 100, "pharosium" = 100, "molitz" = 100, "char" = 125, "ice" = 55, "cobryl" = 55, "bohrum" = 25, "claretine" = 25, "viscerite" = 55, "koshmarite" = 40, "syreline" = 20, "gold" = 20, "plasmastone" = 15, "cerenkite" = 20, "miraclium" = 10, "nanite cluster" = 1, "erebite" = 5, "starstone" = 2)
+		quantity = 15
+		gem_prob = 10
+
+	pharosium
+		ore_types = list("pharosium" = 100, "gold" = 5)
+		quantity = 2
+		fillerprob = 10
+
+	starstone
+		ore_types = list( "char" = 95)
+		hiddenores = list("starstone" = 5)
+		density = 40
+		hardness_mod = 3
+
+	metal
+		ore_types = list("mauxite" = 100, "cobryl" = 30, "bohrum" = 50, "syreline" = 10, "gold" = 5, "pharosium" = 20)
+		hiddenores = list("nanite cluster" = 2)
+		quantity = 10
+		fillerprob = 5
+
+	rads
+		ore_types = list("cerenkite" = 50, "plasmastone" = 40)
+		hiddenores = list("erebite" = 10)
+		density = 40
+		quantity = 2
+
+	shitty_comet
+		ore_types = list("ice" = 100)
+		hiddenores = list("miraclium" = 100)
+		density = 50
+		quantity = 2
+
+	crystal
+		ore_types = list("molitz" = 100, "plasmastone" = 10)
+		hiddenores = list("erebite" = 1)
+		gem_prob = 5
+		quantity = 3
 
 //for testing, can remove when sure this works - Kyle
 /datum/game_mode/pod_wars/proc/test_point_change(var/team as num, var/amt as num)
@@ -237,7 +356,7 @@
 		mode.frequencies_used += comms_frequency
 
 
-	proc/accept_players(var/list/players)
+	proc/accept_initial_players(var/list/players)
 		members = players
 		select_commander()
 
@@ -291,25 +410,22 @@
 			var/mob/new_player/N = M
 			if (team_num == TEAM_NANOTRASEN)
 				if (M.mind == commander)
-					H = N.create_character(JOB)
 					H.mind.assigned_role = "NanoTrasen Commander"
 				else
-					H = N.create_character(JOB)
 					H.mind.assigned_role = "NanoTrasen Pod Pilot"
 				H.mind.special_role = "NanoTrasen"
 
 			else if (team_num == TEAM_SYNDICATE)
 				if (M.mind == commander)
-					H = N.create_character(JOB)
 					H.mind.assigned_role = "Syndicate Commander"
 				else
-					H = N.create_character(JOB)
 					H.mind.assigned_role = "Syndicate Pod Pilot"
 				H.mind.special_role = "Syndicate"
+			H = N.create_character(JOB)
 
 		else if (istype(H))
 			H.Equip_Job_Slots(JOB)
-			H.equip_new_if_possible(JOB.slot_card, H.slot_wear_id)
+			JOB.special_setup(H)
 
 		if (!ishuman(H))
 			boutput(H, "something went wrong. Horribly wrong.")
@@ -318,7 +434,7 @@
 		H.set_clothing_icon_dirty()
 		// H.set_loc(pick(pod_pilot_spawns[team_num]))
 		boutput(H, "You're in the [name] faction!")
-		H.client.screen += mode.board
+		// bestow_objective(player,/datum/objective/battle_royale/win)
 		// SHOW_TIPS(H)
 
 /obj/pod_base_critical_system
@@ -757,8 +873,8 @@ ABSTRACT_TYPE(/obj/machinery/vehicle/pod_wars_dingy)
 	icon = 'icons/obj/ship.dmi'
 	icon_state = "pod"
 	capacity = 1
-	health = 140
-	maxhealth = 140
+	health = 100
+	maxhealth = 100
 	anchored = 0
 	var/weapon_type = /obj/item/shipcomponent/mainweapon/phaser/short
 
@@ -814,36 +930,6 @@ ABSTRACT_TYPE(/obj/machinery/vehicle/pod_wars_dingy)
 				equip_mining()
 				..()
 
-//////////////////
-///////////////pod_wars asteroids
-
-
-/turf/simulated/wall/asteroid/pod_wars
-	fullbright = 1
-	name = "asteroid"
-	desc = "It's asteroid material."
-	hardness = 1
-	default_ore = /obj/item/raw_material/rock
-
-	// varied layers
-
-	New()
-		..()
-
-	//Don't think this can go in new.
-	proc/randomize_ore(var/ore_name as text)
-		//stolen from Turfspawn_Asteroid_SeedSpecificOre
-		var/datum/ore/O = mining_controls?.get_ore_from_string(ore_name)
-		src.ore = O
-		src.hardness += O.hardness_mod
-		src.amount = rand(O.amount_per_tile_min,O.amount_per_tile_max)
-		var/image/ore_overlay = image('icons/turf/asteroid.dmi',O.name)
-		ore_overlay.transform = turn(ore_overlay.transform, pick(0,90,180,-90))
-		ore_overlay.pixel_x += rand(-6,6)
-		ore_overlay.pixel_y += rand(-6,6)
-		src.overlays += ore_overlay
-
-
 //////////survival_machete//////////////
 /obj/item/survival_machete
 	name = "pilot survival machete"
@@ -882,7 +968,8 @@ ABSTRACT_TYPE(/obj/machinery/vehicle/pod_wars_dingy)
 		while (1)
 			T = get_turf(src)
 			if (!locate(to_spawn) in T.contents)
-				new /obj/item/reagent_containers/food/drinks/bottle/champagne(T)
+				var/obj/item/champers = new /obj/item/reagent_containers/food/drinks/bottle/champagne(T)
+				champers.pixel_y = 10
 			sleep(10 SECONDS)
 
 
@@ -893,7 +980,7 @@ ABSTRACT_TYPE(/obj/machinery/vehicle/pod_wars_dingy)
 	desc = "A manufacturing unit calibrated to produce parts for ships."
 	icon_state = "fab-hangar"
 	icon_base = "hangar"
-	free_resource_amt = 50
+	free_resource_amt = 20
 	free_resources = list(
 		/obj/item/material_piece/mauxite,
 		/obj/item/material_piece/pharosium,
@@ -904,27 +991,160 @@ ABSTRACT_TYPE(/obj/machinery/vehicle/pod_wars_dingy)
 		/datum/manufacture/putt/boards,
 		/datum/manufacture/putt/control,
 		/datum/manufacture/putt/parts,
-		/datum/manufacture/pod/engine,
 		/datum/manufacture/pod/boards,
-		/datum/manufacture/pod/armor_light,
-		/datum/manufacture/pod/armor_heavy,
-		/datum/manufacture/pod/armor_industrial,
 		/datum/manufacture/pod/control,
 		/datum/manufacture/pod/parts,
+		/datum/manufacture/pod/engine,
+		/datum/manufacture/pod/lock,
+		/datum/manufacture/engine2,
+		/datum/manufacture/engine3,
 		/datum/manufacture/cargohold,
 		/datum/manufacture/orescoop,
 		/datum/manufacture/conclave,
 		/datum/manufacture/communications/mining,
 		/datum/manufacture/pod/weapon/mining,
 		/datum/manufacture/pod/weapon/mining/drill,
-		/datum/manufacture/pod/weapon/ltlaser,
-		/datum/manufacture/engine2,
-		/datum/manufacture/engine3,
-		/datum/manufacture/pod/lock
+		/datum/manufacture/pod/weapon/ltlaser
 	)
 
-/datum/manufacture/pod_wars/lock	//
-	name = "Cleaver"
+	New()
+		add_team_armor()
+		..()
+
+	proc/add_team_armor()
+		return
+		
+/obj/machinery/manufacturer/pod_wars/nanotrasen
+	name = "NanoTrasen Ship Component Fabricator"
+	add_team_armor()
+		available += list(
+		/datum/manufacture/pod_wars/pod/armor_light/nt,
+		/datum/manufacture/pod_wars/pod/armor_robust/nt
+		)
+/obj/machinery/manufacturer/pod_wars/syndicate
+	name = "Syndicate Ship Component Fabricator"
+	add_team_armor()
+		available += list(
+		/datum/manufacture/pod_wars/pod/armor_light/sy,
+		/datum/manufacture/pod_wars/pod/armor_robust/sy
+		)
+
+////////////////pod-weapons//////////////////
+/datum/manufacture/pod/weapon/mining
+	name = "Mining Phaser System"
+	item_paths = list("MET-1","CON-1")
+	item_amounts = list(10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/bad_mining)
+	time = 5 SECONDS
+	create = 1
+	category = "Tool"
+
+/datum/manufacture/pod/weapon/taser
+	name = "Mk.1 Combat Taser"
+	item_paths = list("MET-2","CON-1","CRY-1")
+	item_amounts = list(10,10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/taser)
+	time = 10 SECONDS
+	create  = 1
+	category = "Tool"
+
+/datum/manufacture/pod/weapon/laser
+	name = "Mk.2 Scout Laser"
+	item_paths = list("MET-2","CON-1","CRY-1")
+	item_amounts = list(10,10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/laser)
+	time = 10 SECONDS
+	create  = 1
+	category = "Tool"
+/datum/manufacture/pod/weapon/laser/short
+	name = "Mk.2 CQ Laser"
+	item_paths = list("MET-2","CON-1","CRY-1")
+	item_amounts = list(10,10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/laser/short)
+	time = 10 SECONDS
+
+/datum/manufacture/pod/weapon/disruptor
+	name = "Heavy Disruptor Array"
+	item_paths = list("MET-2","CON-1","CRY-1")
+	item_amounts = list(10,10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/disruptor_light)
+	time = 10 SECONDS
+	create  = 1
+	category = "Tool"
+
+/datum/manufacture/pod/weapon/disruptor/light
+	name = "Mk.3 Disruptor"
+	item_paths = list("MET-2","CON-1","CRY-1")
+	item_amounts = list(10,10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/disruptor)
+	time = 10 SECONDS
+	create  = 1
+	category = "Tool"
+
+/datum/manufacture/pod/weapon/ass_laser
+	name = "Mk.4 Assault Laser"
+	item_paths = list("MET-2","CON-1","CRY-1")
+	item_amounts = list(10,10,10)
+	item_outputs = list(/obj/item/shipcomponent/mainweapon/laser_ass)
+	time = 10 SECONDS
+	create  = 1
+	category = "Tool"
+
+////////////pod-armor///////////////////////
+/datum/manufacture/pod_wars/pod/armor_light
+	name = "Light NT Pod Armor"
+	item_paths = list("MET-2","CON-1")
+	item_amounts = list(30,20)
+	item_outputs = list(/obj/item/pod/armor_light)
+	time = 20 SECONDS
+	create = 1
+	category = "Component"
+
+/datum/manufacture/pod_wars/pod/armor_light/nt
+	name = "Light NT Pod Armor"
+	item_outputs = list(/obj/item/pod/nt_light)
+
+/datum/manufacture/pod_wars/pod/armor_light/sy
+	name = "Light Syndicate Pod Armor"
+	item_outputs = list(/obj/item/pod/sy_light)
+
+/datum/manufacture/pod_wars/pod/armor_robust
+	name = "Heavy Pod Armor"
+	item_paths = list("MET-3","CON-2", "DEN-3")
+	item_amounts = list(50,30, 10)
+	item_outputs = list(/obj/item/pod/armor_heavy)
+	time = 30 SECONDS
+	create = 1
+	category = "Component"
+
+/datum/manufacture/pod_wars/pod/armor_robust/nt
+	name = "Robust NT Pod Armor"
+	item_outputs = list(/obj/item/pod/nt_robust)
+
+/datum/manufacture/pod_wars/pod/armor_robust/sy
+	name = "Robust Syndicate Pod Armor"
+	item_outputs = list(/obj/item/pod/sy_robust)
+
+
+/datum/manufacture/pod_wars/jetpack
+	name = "Jetpack"
+	item_paths = list("MET-3","CON-1")
+	item_amounts = list(20,30)
+	item_outputs = list(/obj/item/tank/jetpack)
+	time = 60 SECONDS
+	create = 1
+	category = "Clothing"
+	
+/obj/machinery/manufacturer/mining/pod_wars
+	New()
+		available -= /datum/manufacture/jetpack
+		available += /datum/manufacture/pod_wars/jetpack
+		..()
+
+
+//It's cheap, use it!
+/datum/manufacture/pod_wars/lock
+	name = "Pod Lock (ID Card)"
 	item_paths = list("MET-1")
 	item_names = list("Metal")
 	item_amounts = list(1)
@@ -932,3 +1152,161 @@ ABSTRACT_TYPE(/obj/machinery/vehicle/pod_wars_dingy)
 	time = 1 SECONDS
 	create = 1
 	category = "Miscellaneous"
+
+/////////////////////////////////////////////////
+///////////////////ABILITY HOLDER////////////////
+/////////////////////////////////////////////////
+
+//stole this from vampire. prevents runtimes. IDK why this isn't in the parent.
+/obj/screen/ability/topBar/pod_pilot
+	clicked(params)
+		var/datum/targetable/pod_pilot/spell = owner
+		var/datum/abilityHolder/holder = owner.holder
+
+		if (!istype(spell))
+			return
+		if (!spell.holder)
+			return
+
+		if(params["shift"] && params["ctrl"])
+			if(owner.waiting_for_hotkey)
+				holder.cancel_action_binding()
+				return
+			else
+				owner.waiting_for_hotkey = 1
+				src.updateIcon()
+				boutput(usr, "<span class='notice'>Please press a number to bind this ability to...</span>")
+				return
+
+		if (!isturf(owner.holder.owner.loc))
+			boutput(owner.holder.owner, "<span class='alert'>You can't use this spell here.</span>")
+			return
+		if (spell.targeted && usr.targeting_ability == owner)
+			usr.targeting_ability = null
+			usr.update_cursor()
+			return
+		if (spell.targeted)
+			if (world.time < spell.last_cast)
+				return
+			owner.holder.owner.targeting_ability = owner
+			owner.holder.owner.update_cursor()
+		else
+			SPAWN_DBG(0)
+				spell.handleCast()
+		return
+
+
+/* 	/		/		/		/		/		/		Ability Holder		/		/		/		/		/		/		/		/		*/
+
+/datum/abilityHolder/pod_pilot
+	usesPoints = 0
+	regenRate = 0
+	tabName = "pod_pilot"
+	// notEnoughPointsMessage = "<span class='alert'>You need more blood to use this ability.</span>"
+	points = 0
+	pointName = "points"
+
+	New()
+		..()
+		add_all_abilities()
+
+
+	disposing()
+		..()
+
+	onLife(var/mult = 1)
+		if(..()) return
+
+	proc/add_all_abilities()
+		src.addAbility(/datum/targetable/pod_pilot/scoreboard)
+
+/datum/targetable/pod_pilot
+	icon = 'icons/mob/pod_pilot_abilities.dmi'
+	icon_state = "template"
+	cooldown = 0
+	last_cast = 0
+	pointCost = 0
+	preferred_holder_type = /datum/abilityHolder/pod_pilot
+	var/when_stunned = 0 // 0: Never | 1: Ignore mob.stunned and mob.weakened | 2: Ignore all incapacitation vars
+	var/not_when_handcuffed = 0
+	var/unlock_message = null
+	var/can_cast_anytime = 0		//while alive
+
+	New()
+		var/obj/screen/ability/topBar/pod_pilot/B = new /obj/screen/ability/topBar/pod_pilot(null)
+		B.icon = src.icon
+		B.icon_state = src.icon_state
+		B.owner = src
+		B.name = src.name
+		B.desc = src.desc
+		src.object = B
+		return
+
+	onAttach(var/datum/abilityHolder/H)
+		..()
+		if (src.unlock_message && src.holder && src.holder.owner)
+			boutput(src.holder.owner, __blue("<h3>[src.unlock_message]</h3>"))
+		return
+
+	updateObject()
+		..()
+		if (!src.object)
+			src.object = new /obj/screen/ability/topBar/pod_pilot()
+			object.icon = src.icon
+			object.owner = src
+		if (src.last_cast > world.time)
+			var/pttxt = ""
+			if (pointCost)
+				pttxt = " \[[pointCost]\]"
+			object.name = "[src.name][pttxt] ([round((src.last_cast-world.time)/10)])"
+			object.icon_state = src.icon_state + "_cd"
+		else
+			var/pttxt = ""
+			if (pointCost)
+				pttxt = " \[[pointCost]\]"
+			object.name = "[src.name][pttxt]"
+			object.icon_state = src.icon_state
+		return
+
+	castcheck()
+		if (!holder)
+			return 0
+		var/mob/living/M = holder.owner
+		if (!M)
+			return 0
+		if (!(iscarbon(M) || ismobcritter(M)))
+			boutput(M, __red("You cannot use any powers in your current form."))
+			return 0
+		if (can_cast_anytime && !isdead(M))
+			return 1
+		if (!can_act(M, 0))
+			boutput(M, __red("You can't use this ability while incapacitated!"))
+			return 0
+
+		if (src.not_when_handcuffed && M.restrained())
+			boutput(M, __red("You can't use this ability when restrained!"))
+			return 0
+
+		return 1
+
+	cast(atom/target)
+		. = ..()
+		actions.interrupt(holder.owner, INTERRUPT_ACT)
+		return
+
+/datum/targetable/pod_pilot/scoreboard
+	name = "scoreboard"
+	desc = "How many scores do we have?"
+	icon = 'icons/mob/pod_pilot_abilities.dmi'
+	icon_state = "empty"
+	targeted = 0
+	cooldown = 0
+	special_screen_loc = "NORTH,CENTER-2"
+
+	onAttach(var/datum/abilityHolder/H)
+		object.mouse_opacity = 0
+		// object.maptext_y = -32
+		if (istype(ticker.mode, /datum/game_mode/pod_wars))
+			var/datum/game_mode/pod_wars/mode = ticker.mode
+			object.vis_contents += mode.board
+		return

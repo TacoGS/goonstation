@@ -164,8 +164,7 @@ proc/Create_Tommyname()
 	if(src.bioHolder)
 		src.bioHolder.mobAppearance = AH
 		src.bioHolder.AddEffect("accent_tommy")
-	SPAWN_DBG(1 SECOND)
-		src.bioHolder.mobAppearance.UpdateMob()
+	src.update_colorful_parts()
 
 //////////////////////////////
 //Tommy gun
@@ -401,7 +400,7 @@ proc/Create_Tommyname()
 				H.cust_one_state = customization_styles["None"]
 				H.drop_from_slot(H.head)
 				H.force_equip(W, H.slot_head)
-				H.set_clothing_icon_dirty()
+				H.update_colorful_parts()
 
 /obj/item/gun/energy/dtrumpet
 	name = "Donald Trumpet"
@@ -770,7 +769,7 @@ proc/Create_Tommyname()
 			O.pixel_x = ipx
 			O.pixel_y = ipy
 			if(setdir)
-				O.dir = setdir
+				O.set_dir(setdir)
 			O.set_loc(T)
 			animate_slide(O, 0, 0, animtime, LINEAR_EASING)
 
@@ -779,7 +778,7 @@ proc/Create_Tommyname()
 	if(turf_type)
 		DEBUG_MESSAGE("Creating [turf_type] at [showCoords(T.x, T.y, T.z)]")
 		var/turf/NT = new turf_type(T)
-		if(setdir) NT.dir = setdir
+		if(setdir) NT.set_dir(setdir)
 		created_atoms += NT
 
 
@@ -818,7 +817,7 @@ proc/Create_Tommyname()
 	src.icon_state = initial(T.icon_state)
 	src.set_density(initial(T.density))
 	src.opacity = initial(T.opacity)
-	src.dir = initial(T.dir)
+	src.set_dir(initial(T.dir))
 	src.layer = initial(T.layer)
 	src.invisibility = 0
 	if(TTL)

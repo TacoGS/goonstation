@@ -30,9 +30,9 @@ var/global/list/mapNames = list(
 	"1 pamgoC" = 		list("id" = "PAMGOC", 		"settings" = "pamgoc", 			"playerPickable" = ASS_JAM),
 	"Kondaru" = 		list("id" = "KONDARU", 		"settings" = "kondaru", 		"playerPickable" = 1,		"MaxPlayersAllowed" = 80),
 	"Ozymandias" = 	list("id" = "OZYMANDIAS", "settings" = "ozymandias", 	"playerPickable" = 0, 	"MinPlayersAllowed" = 40),
-	"Bellerophon Fleet" = list("id" = "FLEET", "settings" = "fleet", "playerPickable" = ASS_JAM),
+	//"Bellerophon Fleet" = list("id" = "FLEET", "settings" = "fleet", "playerPickable" = ASS_JAM),
 	"Icarus" = 			list("id" = "ICARUS",		"settings" = "icarus",				"playerPickable" = ASS_JAM),
-	"Density" = 		list("id" = "DENSITY", 	"settings" = "density", 			"playerPickable" = ASS_JAM,	"MaxPlayersAllowed" = 30),
+	//"Density" = 		list("id" = "DENSITY", 	"settings" = "density", 			"playerPickable" = ASS_JAM,	"MaxPlayersAllowed" = 30),
 	"Atlas" = 			list("id" = "ATLAS", 		"settings" = "atlas", 				"playerPickable" = 1,				"MaxPlayersAllowed" = 30),
 	"Manta" = 			list("id" = "MANTA", 		"settings" = "manta", 				"playerPickable" = 1,				"MaxPlayersAllowed" = 80),
 	"Wrestlemap" = 			list("id" = "WRESTLEMAP", 	"settings" = "wrestlemap", 		"playerPickable" = ASS_JAM),
@@ -97,7 +97,9 @@ var/global/list/mapNames = list(
 	var/escape_centcom = /area/shuttle/escape/centcom
 	var/escape_transit = /area/shuttle/escape/transit
 	var/escape_station = /area/shuttle/escape/station
+	var/escape_def = SHUTTLE_NODEF
 	var/escape_dir = SOUTH
+
 	var/shuttle_map_turf = /turf/space
 
 	var/merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom
@@ -137,7 +139,8 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/donut2
 	escape_transit = /area/shuttle/escape/transit/donut2
 	escape_station = /area/shuttle/escape/station/donut2
-	escape_dir = WEST // FUCK YOU DONUT2 I WAS NEARLY DONE AND THEN YOU THROW THIS AT ME AND NOW I HAVE TO ADD YOUR GODDAMN WEST-FACING SHUTTLE TO THE MAP ARGH *SCREAM *SCREAM *SCREAM
+	escape_def = SHUTTLE_WEST
+	escape_dir = WEST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/donut2
 	merchant_left_station = /area/shuttle/merchant_shuttle/left_station/donut2
@@ -154,6 +157,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/donut3
 	escape_transit = /area/shuttle/escape/transit/donut3
 	escape_station = /area/shuttle/escape/station/donut3
+	escape_def = SHUTTLE_DONUT3
 	escape_dir = NORTH
 	auto_windows = 1
 
@@ -189,6 +193,8 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap
 	escape_transit = /area/shuttle/escape/transit/cogmap
 	escape_station = /area/shuttle/escape/station/cogmap
+	escape_def = SHUTTLE_SOUTH
+	escape_dir = SOUTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
 	merchant_left_station = /area/shuttle/merchant_shuttle/left_station/cogmap
@@ -219,6 +225,8 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap
 	escape_transit = /area/shuttle/escape/transit/cogmap
 	escape_station = /area/shuttle/escape/station/cogmap
+	escape_def = SHUTTLE_SOUTH
+	escape_dir = SOUTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
 	merchant_left_station = /area/shuttle/merchant_shuttle/left_station/cogmap
@@ -249,6 +257,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap2
@@ -283,6 +292,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/destiny
 	escape_transit = /area/shuttle/escape/transit/destiny
 	escape_station = /area/shuttle/escape/station/destiny
+	escape_def = SHUTTLE_NORTH
 	escape_dir = NORTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/destiny
@@ -344,6 +354,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -372,7 +383,7 @@ var/global/list/mapNames = list(
 		/datum/job/engineering/miner = 4,
 		/datum/job/engineering/engineer = 6,
 		/datum/job/civilian/chef = 2,
-		/datum/job/civilian/barman = 2,
+		/datum/job/civilian/bartender = 2,
 		/datum/job/civilian/janitor = 3,
 		/datum/job/civilian/chaplain = 2,
 		/datum/job/special/lawyer = 1,
@@ -408,6 +419,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/manta
 	escape_transit = /area/shuttle/escape/transit/manta
 	escape_station = /area/shuttle/escape/station/manta
+	escape_def = SHUTTLE_MANTA
 	escape_dir = NORTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -446,6 +458,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 /datum/map_settings/trunkmap
@@ -454,6 +467,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/destiny
 	escape_transit = /area/shuttle/escape/transit/destiny
 	escape_station = /area/shuttle/escape/station/destiny
+	escape_def = SHUTTLE_NORTH
 	escape_dir = NORTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/destiny
@@ -477,6 +491,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -519,6 +534,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -568,6 +584,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -610,9 +627,10 @@ var/global/list/mapNames = list(
 
 	ext_airlocks = /obj/machinery/door/airlock/pyro/external
 
-	escape_centcom = null
-	escape_transit = null
-	escape_station = null
+	escape_centcom = /area/shuttle/escape/centcom/cogmap2
+	escape_transit = /area/shuttle/escape/transit/cogmap2
+	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = null
@@ -655,6 +673,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/destiny
 	escape_transit = /area/shuttle/escape/transit/destiny
 	escape_station = /area/shuttle/escape/station/destiny
+	escape_def = SHUTTLE_NORTH
 	escape_dir = NORTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/destiny
@@ -692,6 +711,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap2
 	escape_transit = /area/shuttle/escape/transit/cogmap2
 	escape_station = /area/shuttle/escape/station/cogmap2
+	escape_def = SHUTTLE_EAST
 	escape_dir = EAST
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap2
@@ -734,6 +754,8 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/cogmap
 	escape_transit = /area/shuttle/escape/transit/cogmap
 	escape_station = /area/shuttle/escape/station/cogmap
+	escape_def = SHUTTLE_SOUTH
+	escape_dir = SOUTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
 	merchant_left_station = /area/shuttle/merchant_shuttle/left_station/cogmap
@@ -771,6 +793,8 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/sealab
 	escape_transit = /area/shuttle/escape/transit/sealab
 	escape_station = /area/shuttle/escape/station/sealab
+	escape_def = SHUTTLE_OSHAN
+	escape_dir = EAST
 	shuttle_map_turf = /turf/space/fluid
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -812,6 +836,7 @@ var/global/list/mapNames = list(
 	escape_centcom = /area/shuttle/escape/centcom/destiny
 	escape_transit = /area/shuttle/escape/transit/destiny
 	escape_station = /area/shuttle/escape/station/destiny
+	escape_def = SHUTTLE_NORTH
 	escape_dir = NORTH
 
 	merchant_left_centcom = /area/shuttle/merchant_shuttle/left_centcom/cogmap
@@ -882,7 +907,7 @@ var/global/list/mapNames = list(
 		icon_state = "shuttle_escape-sealab"
 	manta
 		icon_state = "shuttle_escape-manta"
-		filler_turf = "/turf/space/fluid/manta"
+		filler_turf = "/turf/space/fluid"
 	donut3
 		icon_state = "shuttle_escape-dnt3"
 

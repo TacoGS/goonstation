@@ -283,7 +283,7 @@ THROWING DARTS
 			if (he_or_she(src.owner) == "they")
 				src.message += "they [has_record ? "have a record in the cloner at [has_record]" : "do not have a cloning record." ]"
 			else
-				src.message += "[he_or_she(src.owner)] [has_record ? "has a record in the cloner at [has_record]" : "does not have a cloning record."]"
+				src.message += "[has_record ? "genetic record detected in cloning console at [has_record]" : "genetic record not detected."]"
 
 		//DEBUG_MESSAGE("implant reporting death")
 		src.send_message()
@@ -418,7 +418,7 @@ THROWING DARTS
 	do_process(var/mult = 1)
 		if (ishuman(src.owner))
 			var/mob/living/carbon/human/H = owner
-			if (src.health < 40 && !src.inactive)
+			if (H.health < 40 && !src.inactive)
 				if (!H.reagents.has_reagent("omnizine", 10))
 					H.reagents.add_reagent("omnizine", 10)
 				src.inactive = 1
@@ -562,8 +562,7 @@ THROWING DARTS
 					throwjunk += I
 
 			SPAWN_DBG(0) //Delete the overlay when finished with it.
-				if(source)
-					source.gib()
+				source?.gib()
 
 				for(var/obj/O in throwjunk) //Throw this junk around
 					var/edge = get_edge_target_turf(T, pick(alldirs))

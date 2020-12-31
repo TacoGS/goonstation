@@ -293,6 +293,44 @@ obj/machinery/vehicle/miniputt/pilot
 	maxhealth = 300
 	desc = "????"
 
+//pod wars ones//
+/obj/machinery/vehicle/miniputt/nt_light
+	name = "Pod NTL-"
+	desc = "A nanotrasen-issue light pod."
+	armor_score_multiplier = 1
+	icon_state = "putt_raceBlue"
+	health = 150
+	maxhealth = 150
+	speed = 0.8
+
+/obj/machinery/vehicle/miniputt/nt_robust
+	name = "Pod NTR-"
+	desc = "A nanotrasen-issue robust pod."
+	armor_score_multiplier = 1.5
+	icon_state = "putt_nt_robust"
+	health = 350
+	maxhealth = 350
+	speed = 0.6
+
+/obj/machinery/vehicle/miniputt/sy_light
+	name = "Pod SYL-"
+	desc = "A syndicate-crafted light pod."
+	armor_score_multiplier = 1
+	icon_state = "putt_raceRed_alt"
+	health = 150
+	maxhealth = 150
+	speed = 0.8
+
+/obj/machinery/vehicle/miniputt/sy_robust
+	name = "Pod SYR-"
+	desc = "A syndicate-crafted robust pod."
+	armor_score_multiplier = 1.5
+	icon_state = "putt_wizard"
+	health = 350
+	maxhealth = 350
+	speed = 0.6
+//pod wars end//
+
 /*-----------------------------*/
 /* MiniPutt construction stuff */
 /*-----------------------------*/
@@ -397,7 +435,7 @@ obj/machinery/vehicle/miniputt/pilot
 
 	var/timer = 5 * stage + 30
 	while(timer > 0)
-		if(do_after(usr, 10))
+		if(do_after(usr, 1 SECONDS))
 			timer -= 10
 		else
 			boutput(usr, "<span class='alert'>You were interrupted!</span>")
@@ -483,7 +521,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if (iswrenchingtool(W))
 				boutput(user, "You begin to secure the frame...")
 				playsound(src.loc, "sound/items/Ratchet.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You wrench some of the frame parts together.")
@@ -496,7 +534,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if (iswrenchingtool(W))
 				boutput(user, "You begin to secure the rest of the frame...")
 				playsound(src.loc, "sound/items/Ratchet.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You finish wrenching the frame parts together.")
@@ -512,7 +550,7 @@ obj/machinery/vehicle/miniputt/pilot
 				if(!W:try_weld(user, 1))
 					return
 				boutput(user, "You begin to weld the joints of the frame...")
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You weld the joints of the frame together.")
@@ -527,7 +565,7 @@ obj/machinery/vehicle/miniputt/pilot
 					return
 				boutput(user, "You begin to install the wiring...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				W.amount -= 2
@@ -544,7 +582,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/putt/boards))
 				boutput(user, "You begin to install the circuit boards...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You install the internal circuitry parts.")
@@ -564,7 +602,7 @@ obj/machinery/vehicle/miniputt/pilot
 						return
 					boutput(user, "You begin to install the internal plating...")
 					playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-					if (!do_after(user, 30))
+					if (!do_after(user, 3 SECONDS))
 						boutput(user, "<span class='alert'>You were interrupted!</span>")
 						return
 					S.amount -= 3
@@ -583,7 +621,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/putt/engine))
 				boutput(user, "You begin to install the engine...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You install the engine.")
@@ -598,7 +636,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/pod/armor_light))
 				boutput(user, "You begin to install the light armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the light armor plating.")
@@ -610,7 +648,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_heavy))
 				boutput(user, "You begin to install the heavy armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the heavy armor plating.")
@@ -622,7 +660,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_black))
 				boutput(user, "You begin to install the strange armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the strange armor plating.")
@@ -634,7 +672,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_red))
 				boutput(user, "You begin to install the syndicate armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the syndicate armor plating.")
@@ -646,7 +684,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_industrial))
 				boutput(user, "You begin to install the industrial armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the industrial armor plating.")
@@ -658,7 +696,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_gold))
 				boutput(user, "You begin to install the gold armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the gold armor plating.")
@@ -670,7 +708,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_custom) && W.material)
 				boutput(user, "You begin to install the custom armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the custom armor plating.")
@@ -680,6 +718,61 @@ obj/machinery/vehicle/miniputt/pilot
 				qdel(W)
 				stage = 8
 				armor_type = 7
+
+			////////////////////pod wars ones//////////////////////
+			//NT
+			else if(istype(W, /obj/item/pod/nt_light))
+				boutput(user, "You begin to install the light armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the light armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/obj/ship.dmi', "pod_skinB")
+				stage = 8
+				armor_type = 8
+			else if(istype(W, /obj/item/pod/nt_robust))
+				boutput(user, "You begin to install the robust armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the robust armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/obj/ship.dmi', "pod_skinBF")
+				stage = 8
+				armor_type = 9
+
+			//SY
+			else if(istype(W, /obj/item/pod/sy_light))
+				boutput(user, "You begin to install the light armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the light armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/obj/ship.dmi', "pod_skinR")
+				stage = 8
+				armor_type = 10
+			else if(istype(W, /obj/item/pod/sy_robust))
+				boutput(user, "You begin to install the robust armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the robust armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/obj/ship.dmi', "pod_skinW")
+				stage = 8
+				armor_type = 11
+			////////////////////pod wars end//////////////////////
+
 			else
 				boutput(user, "You don't think you're going anywhere without a skin on this pod, do you? Get some armor!")
 
@@ -688,7 +781,7 @@ obj/machinery/vehicle/miniputt/pilot
 				if(!W:try_weld(user, 1))
 					return
 				boutput(user, "You begin to weld the exterior...")
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You weld the seams of the outer skin to make it air-tight.")
@@ -700,7 +793,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/putt/control))
 				boutput(user, "You begin to install the control system...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You install the control system for the pod.")
@@ -726,7 +819,7 @@ obj/machinery/vehicle/miniputt/pilot
 					return
 				boutput(user, "You begin to install the glass...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				W.amount -= 3
@@ -771,6 +864,24 @@ obj/machinery/vehicle/miniputt/pilot
 					A.setMaterial(src.material)
 					logTheThing("station", usr, null, "finishes building a custom armored MiniPutt in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
 					qdel(src)
+				//pod wars ones
+				else if (armor_type == 8)
+					new /obj/machinery/vehicle/miniputt/nt_light( src.loc )
+					logTheThing("station", usr, null, "finishes building a big nt-light pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+				else if (armor_type == 9)
+					new /obj/machinery/vehicle/miniputt/nt_robust( src.loc )
+					logTheThing("station", usr, null, "finishes building a big nt-robust pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+				else if (armor_type == 10)
+					new /obj/machinery/vehicle/miniputt/sy_light( src.loc )
+					logTheThing("station", usr, null, "finishes building a big sy-light pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+				else if (armor_type == 11)
+					new /obj/machinery/vehicle/miniputt/sy_robust( src.loc )
+					logTheThing("station", usr, null, "finishes building a big sy-robust pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+
 			else
 				boutput(user, "You weren't thinking of flying around without a reinforced cockpit, were you? Put some reinforced glass on it! Three sheets will do.")
 
@@ -957,7 +1068,7 @@ obj/machinery/vehicle/miniputt/pilot
 					P.pixel_y = V * 5
 	ex_act(severity)
 		if(!maxboom)
-			SPAWN_DBG(1)
+			SPAWN_DBG(0.1 SECONDS)
 				..()
 				maxboom = 0
 		maxboom = max(severity, maxboom)
@@ -1055,6 +1166,44 @@ obj/machinery/vehicle/miniputt/pilot
 	maxhealth = 550
 	speed = 1.5
 	capacity = 4
+
+//pod wars ones//
+/obj/machinery/vehicle/pod_smooth/nt_light
+	name = "Pod NTL-"
+	desc = "A nanotrasen-issue light pod."
+	armor_score_multiplier = 1
+	icon_state = "pod_raceBlue"
+	health = 250
+	maxhealth = 250
+	speed = 0.9
+
+/obj/machinery/vehicle/pod_smooth/nt_robust
+	name = "Pod NTR-"
+	desc = "A nanotrasen-issue robust pod."
+	armor_score_multiplier = 1.5
+	icon_state = "pod_nt_robust"
+	health = 500
+	maxhealth = 500
+	speed = 0.8
+
+/obj/machinery/vehicle/pod_smooth/sy_light
+	name = "Pod SYL-"
+	desc = "A syndicate-crafted light pod."
+	armor_score_multiplier = 1
+	icon_state = "pod_raceRed"
+	health = 250
+	maxhealth = 250
+	speed = 0.9
+
+/obj/machinery/vehicle/pod_smooth/sy_robust
+	name = "Pod SYR-"
+	desc = "A syndicate-crafted robust pod."
+	armor_score_multiplier = 1.5
+	icon_state = "pod_wizard"
+	health = 500
+	maxhealth = 500
+	speed = 0.8
+//pod wars end//
 
 /obj/machinery/vehicle/pod_smooth/setup_ion_trail()
 	//////Ion Trail Setup
@@ -1219,6 +1368,32 @@ obj/machinery/vehicle/miniputt/pilot
 	icon = 'icons/obj/electronics.dmi'
 	icon_state = "dbox"
 
+/obj/item/pod/nt_light
+	name = "Light NT Pod Armor"
+	desc = "Standard exterior plating for vehicle pods."
+	icon = 'icons/obj/electronics.dmi'
+	icon_state = "dbox"
+
+/obj/item/pod/nt_robust
+	name = "Robust NT Pod Armor"
+	desc = "Standard exterior plating for vehicle pods."
+	icon = 'icons/obj/electronics.dmi'
+	icon_state = "dbox"
+
+/obj/item/pod/sy_light
+	name = "Light Syndicate Pod Armor"
+	desc = "Standard exterior plating for vehicle pods."
+	icon = 'icons/obj/electronics.dmi'
+	icon_state = "dbox"
+
+/obj/item/pod/sy_robust
+	name = "Robust Syndicate Pod Armor"
+	desc = "Standard exterior plating for vehicle pods."
+	icon = 'icons/obj/electronics.dmi'
+	icon_state = "dbox"
+
+
+
 /obj/item/pod/armor_black
 	name = "Strange Pod Armor"
 	desc = "The box is stamped with the Nanotrasen symbol and a lengthy list of classified warnings. Neat."
@@ -1352,7 +1527,7 @@ obj/machinery/vehicle/miniputt/pilot
 
 	var/timer = 5 * stage + 30
 	while(timer > 0)
-		if(do_after(usr, 10))
+		if(do_after(usr, 1 SECONDS))
 			timer -= 10
 		else
 			boutput(usr, "<span class='alert'>You were interrupted!</span>")
@@ -1436,7 +1611,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if (iswrenchingtool(W))
 				boutput(user, "You begin to secure the frame...")
 				playsound(src.loc, "sound/items/Ratchet.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You wrench some of the frame parts together.")
@@ -1449,7 +1624,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if (iswrenchingtool(W))
 				boutput(user, "You begin to secure the rest of the frame...")
 				playsound(src.loc, "sound/items/Ratchet.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You finish wrenching the frame parts together.")
@@ -1464,7 +1639,7 @@ obj/machinery/vehicle/miniputt/pilot
 				if(!W:try_weld(user, 1))
 					return
 				boutput(user, "You begin to weld the joints of the frame...")
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You weld the joints of the frame together.")
@@ -1479,7 +1654,7 @@ obj/machinery/vehicle/miniputt/pilot
 					return
 				boutput(user, "You begin to install the wiring...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				W.amount -= 4
@@ -1496,7 +1671,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/pod/boards))
 				boutput(user, "You begin to install the circuit boards...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You install the internal circuitry parts.")
@@ -1516,7 +1691,7 @@ obj/machinery/vehicle/miniputt/pilot
 						return
 					boutput(user, "You begin to install the internal plating...")
 					playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-					if (!do_after(user, 30))
+					if (!do_after(user, 3 SECONDS))
 						boutput(user, "<span class='alert'>You were interrupted!</span>")
 						return
 					S.amount -= 5
@@ -1535,7 +1710,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/pod/engine))
 				boutput(user, "You begin to install the engine...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You install the engine.")
@@ -1547,10 +1722,11 @@ obj/machinery/vehicle/miniputt/pilot
 				boutput(user, "Having an engine might be nice.")
 
 		if(7)
+			//this whole if-block should be refactored to utilize polymorphism, but I'm going to add to it now cause I'm lazy and in a rush... -kyle
 			if(istype(W, /obj/item/pod/armor_light))
 				boutput(user, "You begin to install the light armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the light armor plating.")
@@ -1562,7 +1738,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_heavy))
 				boutput(user, "You begin to install the heavy armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the heavy armor plating.")
@@ -1574,7 +1750,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_black))
 				boutput(user, "You begin to install the strange armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the strange armor plating.")
@@ -1586,7 +1762,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_red))
 				boutput(user, "You begin to install the syndicate armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the syndicate armor plating.")
@@ -1598,7 +1774,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_industrial))
 				boutput(user, "You begin to install the industrial armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the industrial armor plating.")
@@ -1610,7 +1786,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_gold))
 				boutput(user, "You begin to install the gold armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the gold armor plating.")
@@ -1622,7 +1798,7 @@ obj/machinery/vehicle/miniputt/pilot
 			else if(istype(W, /obj/item/pod/armor_custom) && W.material)
 				boutput(user, "You begin to install the custom armor plating...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You loosely attach the custom armor plating.")
@@ -1632,6 +1808,61 @@ obj/machinery/vehicle/miniputt/pilot
 				qdel(W)
 				stage = 8
 				armor_type = 7
+
+			////////////////////pod wars ones//////////////////////
+			//NT
+			else if(istype(W, /obj/item/pod/nt_light))
+				boutput(user, "You begin to install the light armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the light armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/effects/64x64.dmi', "pod_skinB")
+				stage = 8
+				armor_type = 8
+			else if(istype(W, /obj/item/pod/nt_robust))
+				boutput(user, "You begin to install the robust armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the robust armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/effects/64x64.dmi', "pod_skinBF")
+				stage = 8
+				armor_type = 9
+
+			//SY
+			else if(istype(W, /obj/item/pod/sy_light))
+				boutput(user, "You begin to install the light armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the light armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/effects/64x64.dmi', "pod_skinR")
+				stage = 8
+				armor_type = 10
+			else if(istype(W, /obj/item/pod/sy_robust))
+				boutput(user, "You begin to install the robust armor plating...")
+				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
+				if (!do_after(user, 30))
+					boutput(user, "<span class='alert'>You were interrupted!</span>")
+					return
+				boutput(user, "You loosely attach the robust armor plating.")
+				user.u_equip(W)
+				qdel(W)
+				src.overlays += image('icons/effects/64x64.dmi', "pod_skinW")
+				stage = 8
+				armor_type = 11
+			////////////////////pod wars end//////////////////////
+
 			else
 				boutput(user, "You don't think you're going anywhere without a skin on this pod, do you? Get some armor!")
 
@@ -1640,7 +1871,7 @@ obj/machinery/vehicle/miniputt/pilot
 				if(!W:try_weld(user, 1))
 					return
 				boutput(user, "You begin to weld the exterior...")
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You weld the seams of the outer skin to make it air-tight.")
@@ -1652,7 +1883,7 @@ obj/machinery/vehicle/miniputt/pilot
 			if(istype(W, /obj/item/pod/control))
 				boutput(user, "You begin to install the control system...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				boutput(user, "You install the control system for the pod.")
@@ -1678,7 +1909,7 @@ obj/machinery/vehicle/miniputt/pilot
 					return
 				boutput(user, "You begin to install the glass...")
 				playsound(src.loc, "sound/items/Deconstruct.ogg", 50, 1)
-				if (!do_after(user, 30))
+				if (!do_after(user, 3 SECONDS))
 					boutput(user, "<span class='alert'>You were interrupted!</span>")
 					return
 				W.amount -= 5
@@ -1723,6 +1954,24 @@ obj/machinery/vehicle/miniputt/pilot
 					A.setMaterial(src.material)
 					logTheThing("station", usr, null, "finishes building a custom armored pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
 					qdel(src)
+				//pod wars ones
+				else if (armor_type == 8)
+					new /obj/machinery/vehicle/pod_smooth/nt_light( src.loc )
+					logTheThing("station", usr, null, "finishes building a big nt-light pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+				else if (armor_type == 9)
+					new /obj/machinery/vehicle/pod_smooth/nt_robust( src.loc )
+					logTheThing("station", usr, null, "finishes building a big nt-robust pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+				else if (armor_type == 10)
+					new /obj/machinery/vehicle/pod_smooth/sy_light( src.loc )
+					logTheThing("station", usr, null, "finishes building a big sy-light pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+				else if (armor_type == 11)
+					new /obj/machinery/vehicle/pod_smooth/sy_robust( src.loc )
+					logTheThing("station", usr, null, "finishes building a big sy-robust pod in [get_area(usr)] ([showCoords(usr.x, usr.y, usr.z)])")
+					qdel(src)
+
 			else
 				boutput(user, "You weren't thinking of flying around without a reinforced cockpit, were you? Put some reinforced glass on it! Five sheets will do.")
 
@@ -1791,10 +2040,9 @@ obj/machinery/vehicle/miniputt/pilot
 			var/obj/portal/P = unpool(/obj/portal)
 			P.set_loc(get_turf(src))
 			var/turf/T = pick_landmark(LANDMARK_ESCAPE_POD_SUCCESS)
-			src.dir = landmarks[LANDMARK_ESCAPE_POD_SUCCESS][T]
+			src.set_dir(map_settings ? map_settings.escape_dir : SOUTH)
 			P.target = T
 			src.set_loc(T)
-
 			logTheThing("station", src, null, "creates an escape portal at [log_loc(src)].")
 
 
@@ -1824,7 +2072,7 @@ obj/machinery/vehicle/miniputt/pilot
 				pilot << sound('sound/machines/engine_alert1.ogg')
 				boutput(pilot, "<span class='alert'>Your escape pod is veering out of control!</span>")
 				while(src)
-					if(prob(10)) src.dir = turn(dir,pick(90,-90))
+					if(prob(10)) src.set_dir(turn(dir,pick(90,-90)))
 					var/loc = src.loc
 					step(src,src.dir)
 					if(src.loc == loc) //we hit something
@@ -1874,7 +2122,7 @@ obj/machinery/vehicle/miniputt/pilot
 				pilot << sound('sound/machines/engine_alert1.ogg')
 				var/spin_dir = pick(90,-90)
 				while(src)
-					src.dir = turn(dir,spin_dir)
+					src.set_dir(turn(dir,spin_dir))
 					var/loc = src.loc
 					step(src,src.dir)
 					if(src.loc == loc) //we hit something

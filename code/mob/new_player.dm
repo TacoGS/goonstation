@@ -308,6 +308,9 @@ mob/new_player
 			if(istype(ticker.mode, /datum/game_mode/football))
 				var/datum/game_mode/football/F = ticker.mode
 				F.init_player(character, 0, 1)
+			else if(istype(ticker.mode, /datum/game_mode/pod_wars))
+				var/datum/game_mode/pod_wars/mode = ticker.mode
+				mode.add_latejoin_to_team(character.mind, JOB)
 
 			else if (character.traitHolder && character.traitHolder.hasTrait("immigrant"))
 				boutput(character.mind.current,"<h3 class='notice'>You've arrived in a nondescript container! Good luck!</h3>")
@@ -383,7 +386,7 @@ mob/new_player
 				//if they have a ckey, joined before a certain threshold and the shuttle wasnt already on its way
 				if (character.mind.ckey && (ticker.round_elapsed_ticks <= MAX_PARTICIPATE_TIME) && !emergency_shuttle.online)
 					participationRecorder.record(character.mind.ckey)
-			SPAWN_DBG (0)
+			SPAWN_DBG(0)
 				qdel(src)
 
 		else
@@ -518,7 +521,7 @@ a.latejoin-card:hover {
 
 		// deal with it
 		dat += ""
-		if (ticker.mode && !istype(ticker.mode, /datum/game_mode/construction) && !istype(ticker.mode,/datum/game_mode/battle_royale) && !istype(ticker.mode,/datum/game_mode/football))
+		if (ticker.mode && !istype(ticker.mode, /datum/game_mode/construction) && !istype(ticker.mode,/datum/game_mode/battle_royale) && !istype(ticker.mode,/datum/game_mode/football) && !istype(ticker.mode,/datum/game_mode/pod_wars))
 			dat += {"<div class='fuck'><table class='latejoin'><tr><th colspan='2'>Command/Security</th></tr>"}
 			for(var/datum/job/command/J in job_controls.staple_jobs)
 				dat += LateJoinLink(J)
@@ -575,11 +578,9 @@ a.latejoin-card:hover {
 			var/datum/game_mode/pod_wars/mode = ticker.mode
 
 			if (mode?.team_NT?.members?.len > mode?.team_SY?.members?.len)
-				// for(var/datum/job/pod_wars/syndicate/J in job_controls.staple_jobs)
-				dat += LateJoinLink(new /datum/job/pod_wars/syndicate)
+				AttemptLateSpawn(new /datum/job/pod_wars/syndicate, 1)
 			else
-				// for(var/datum/job/pod_wars/nanotrasen/J in job_controls.staple_jobs)
-				dat += LateJoinLink(new /datum/job/pod_wars/nanotrasen)
+				AttemptLateSpawn(new /datum/job/pod_wars/nanotrasen, 1)
 
 			return
 		else
@@ -619,13 +620,16 @@ a.latejoin-card:hover {
 
 		var/mob/new_character = null
 		if (J)
-			new_character = new J.mob_type(src.loc)
+			new_character = new J.mob_type(src.loc, client.preferences.AH)
 		else
-			new_character = new /mob/living/carbon/human(src.loc) // fallback
+			new_character = new /mob/living/carbon/human(src.loc, client.preferences.AH) // fallback
 
 		close_spawn_windows()
 
 		client.preferences.copy_to(new_character,src)
+		if(ishuman(new_character))
+			var/mob/living/carbon/human/H = new_character
+			H.update_colorful_parts()
 		var/client/C = client
 		mind.transfer_to(new_character)
 
@@ -666,11 +670,7 @@ a.latejoin-card:hover {
 		if(new_character?.client)
 			new_character.client.loadResources()
 
-#if ASS_JAM
-			if(ass_mutation)
-				new_character.bioHolder.AddEffect(ass_mutation)
-				boutput(new_character.mind.current,"<span class='alert'>A radiation anomaly is currently affecting [the_station_name] and everyone - including you - is afflicted with a certain mutation.</h3>")
-#endif
+
 
 		new_character.temporary_attack_alert(1200) //Messages admins if this new character attacks someone within 2 minutes of signing up. Might help detect grief, who knows?
 		new_character.temporary_suicide_alert(1500) //Messages admins if this new character commits suicide within 2 1/2 minutes. probably a bit much but whatever

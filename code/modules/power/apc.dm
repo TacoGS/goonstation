@@ -179,7 +179,7 @@ var/zapLimiter = 0
 		src.net_id = generate_net_id(src)
 	else
 		terminal = new/obj/machinery/power/terminal(src.loc)
-	terminal.dir = tdir
+	terminal.set_dir(tdir)
 	terminal.master = src
 
 	SPAWN_DBG(0.5 SECONDS)
@@ -270,6 +270,7 @@ var/zapLimiter = 0
 
 /obj/machinery/power/apc/emp_act()
 	..()
+	if(!src.lighting && !src.equipment && !src.environ ) return //avoid stacking apc emp effects
 	if(src.cell)
 		src.cell.charge -= 1000
 		if (src.cell.charge < 0)
@@ -352,14 +353,14 @@ var/zapLimiter = 0
 						if (istype(newTerm) && !newTerm.master)
 							src.terminal = newTerm
 							newTerm.master = src
-							newTerm.dir = initial(src.dir) //Can't use CURRENT dir because it is set to south on spawn.
+							newTerm.set_dir(initial(src.dir)) //Can't use CURRENT dir because it is set to south on spawn.
 						else
 							if (src.setup_networkapc)
 								src.terminal = new /obj/machinery/power/terminal/netlink(src.loc)
 							else
 								src.terminal = new /obj/machinery/power/terminal(src.loc)
 							src.terminal.master = src
-							src.terminal.dir = initial(src.dir)
+							src.terminal.set_dir(initial(src.dir))
 
 					status &= ~BROKEN //Clear broken flag
 					icon_state = initial(src.icon_state)
@@ -403,7 +404,7 @@ var/zapLimiter = 0
 					boutput(user, "<span class='alert'>You must repair the autotransformer's windings prior to tuning it.</span>")
 				if (2)
 					boutput(user, "You begin to carefully tune the autotransformer.  This might take a little while.")
-					if (!do_after(user, 60))
+					if (!do_after(user, 6 SECONDS))
 						return
 					boutput(user, "You tune the autotransformer.")
 					playsound(src.loc, "sound/items/Ratchet.ogg", 50, 1)
@@ -457,9 +458,7 @@ var/zapLimiter = 0
 
 	else if (issilicon(user))
 		if (istype(W, /obj/item/robojumper))
-			if (!istype(user, /mob/living/silicon/robot))
-				return
-			var/mob/living/silicon/robot/S = user
+			var/mob/living/silicon/S = user
 			var/obj/item/robojumper/jumper = W
 			var/obj/item/cell/donor_cell = null
 			var/obj/item/cell/recipient_cell = null

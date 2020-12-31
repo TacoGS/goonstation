@@ -1,3 +1,4 @@
+// if you're looking for something like find_in_active_hand(), you'll want /mob/proc/equipped()
 /mob/proc/find_in_hand(var/obj/item/I, var/this_hand) // for when you need to find a SPECIFIC THING and not just a type
 	if (!I) // did we not get passed a thing to look for?
 		return // fuck you
@@ -602,7 +603,7 @@
 	if (!old || !newbody || !ishuman(old) || !ishuman(newbody))
 		return
 
-	SPAWN_DBG (20) // OrganHolders etc need time to initialize. Transferring inventory doesn't.
+	SPAWN_DBG(2 SECONDS) // OrganHolders etc need time to initialize. Transferring inventory doesn't.
 		if (copy_organs && old && newbody && old.organHolder && newbody.organHolder)
 			if (old.organHolder.skull && (old.organHolder.skull.type != newbody.organHolder.skull.type))
 				var/obj/item/organ/NO = new old.organHolder.skull.type(newbody)
@@ -760,7 +761,7 @@
 			old.u_equip(CI15)
 			newbody.equip_if_possible(CI15, slot_r_hand)
 
-	SPAWN_DBG (20) // Necessary.
+	SPAWN_DBG(2 SECONDS) // Necessary.
 		if (newbody)
 			newbody.set_face_icon_dirty()
 			newbody.set_body_icon_dirty()
@@ -816,9 +817,9 @@
 		//mostly took this from gang. I'm sure it can be better though, sorry. -Kyle
 		if (istype(ticker.mode, /datum/game_mode/pod_wars))
 			var/datum/game_mode/pod_wars/PW = ticker.mode
-			if (locate(src.mind) in PW.team_NT.members)
+			if (src.mind.special_role == "NanoTrasen")
 				PWT_to_see = PW.team_NT
-			else if (locate(src.mind) in PW.team_SY.members)
+			else if (src.mind.special_role == "Syndicate")
 				PWT_to_see = PW.team_SY
 		if (issilicon(src)) // We need to look for borged antagonists too.
 			var/mob/living/silicon/S = src
